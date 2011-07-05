@@ -1,0 +1,358 @@
+<!--
+//	****************************************************************************
+//	JSFighter inspired by MUGEN
+//	Copyright (c) 2011 Unni Vemanchery Mana
+//	****************************************************************************
+//	This program is free software; you can redistribute it and/or modify it
+//	under the terms of the GNU Lesser General Public License as published by the
+//	Free Software Foundation; either version 3 of the License, or (at your
+//	option) any later version.
+//	This program is distributed in the hope that it will be useful, but WITHOUT
+//	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//	FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for
+//	more details.
+//	You should have received a copy of the GNU Lesser General Public License along
+//	with this program; if not, see <http://www.gnu.org/licenses/lgpl.html>.
+//	****************************************************************************
+-->
+
+ <html>
+    <head>
+        <script src="jquery-14a.js"></script>
+        <script src="jquery.gamequery-0.5.1.js"></script>
+        <script>
+
+            var PLAYGROUND_WIDTH  = 700;
+            var PLAYGROUND_HEIGHT = 350;   
+            var currentAnimation  = null;
+            var defaultAnimation  = null;
+            var res ;
+            var xPos = -150;
+            var kdown = false;
+            var kup   = false;
+ 
+            $(function(){
+
+                var playerAnimation = new Array(29);
+                 
+                playerAnimation["ryuWalkAgo"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_andando_para_atras.png",  numberOfFrame: 7, delta: 292, rate: 90,
+                type: $.gameQuery.ANIMATION_HORIZONTAL});      
+
+                playerAnimation["ryuBeatLeft"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_porrada_para_esquerda.png",  numberOfFrame: 4, delta: 290, rate: 50, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL});
+
+                playerAnimation["ryuApanhando1"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_apanhando1.png",  numberOfFrame: 7, delta: 290, rate: 120,   
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+ 
+                playerAnimation["ryuApanhando2"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_apanhando2.png",  numberOfFrame: 7, delta: 290, rate: 120,   
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+ 		    	
+                playerAnimation["ryuRollForward"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_apanhando3.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+
+                playerAnimation["ryuApanhando4"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_apanhando4.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+
+                playerAnimation["ryuApanhando5"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_apanhando5.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+
+                playerAnimation["ryuDownDefence"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_defesa_para_baixo.png",  numberOfFrame: 6, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL});
+
+                playerAnimation["ryuUnderDefence"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_defesa_por_baixo.png",  numberOfFrame: 5, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL});
+ 
+                playerAnimation["ryuTopEscape"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_escapando_por_cima.png",  numberOfFrame: 5, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL});
+ 
+                playerAnimation["ryuGingando"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_gingando.png",  numberOfFrame: 2, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL});
+
+                playerAnimation["ryugolpesDeKarate"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_golpesDeKarate.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+  
+                playerAnimation["ryugolpesRasteiros"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_golpesRasteiros.png",  numberOfFrame: 7, delta: 290, rate: 40, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+                  
+                playerAnimation["ryugolpesSuperiores"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_golpesSuperiores.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+   
+                playerAnimation["ryuhaduken"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_haduken.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+                 
+                playerAnimation["ryuhelicoptero"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_helicoptero.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+  
+                playerAnimation["ryuoutrosgolpes2"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_outros_golpes2.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});  
+                 
+                playerAnimation["ryuoutrosgolpes"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_outros_golpes.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});  
+
+                playerAnimation["ryupezadas1"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_pezadas1.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});  
+
+                playerAnimation["ryupezadas2"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_pezadas2.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});  
+
+                playerAnimation["ryuporradaparaesquerda"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_porrada_para_esquerda.png",  numberOfFrame: 4, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL});  
+ 							 
+                playerAnimation["ryurolandoparafrente"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_rolando_para_frente.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL}); 
+
+                playerAnimation["ryusaltoporcimadooponente"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_salto_por_cima_do_oponente.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200}); 
+
+                playerAnimation["ryusocos1"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_socos1.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200}); 
+
+                playerAnimation["ryusocos2"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_socos2.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});     
+
+                playerAnimation["ryusubindo"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_subindo.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});     
+ 
+                playerAnimation["ryuwin"] = new $.gameQuery.Animation({imageURL: "./Archive1/ryu_win.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});     
+ 
+   
+                $("#playground").playground({height: PLAYGROUND_HEIGHT, width: PLAYGROUND_WIDTH})
+                .addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT})
+                .addGroup("player", {posx: PLAYGROUND_WIDTH/2, posy: PLAYGROUND_HEIGHT/2, width: 100, height: 26})
+                .addSprite("ryuWalkAgo",{animation: playerAnimation["ryuWalkAgo"],
+                posx: -150, posy: 0, width: 290, height: 160})
+//                .addSprite("ryuBeatLeft",{animation: playerAnimation["ryuBeatLeft"], 
+//                 posx: -190, posy: 0, width: 254, height: 160})
+ //               .addSprite("ryuApanhando1",{animation: playerAnimation["ryuApanhando1"], 
+ //                posx: -50, posy: 0, width: 254, height: 160})
+ //               .addSprite("ryuApanhando2",{animation: playerAnimation["ryuApanhando2"], 
+ //                posx: -150, posy: 0, width: 254, height: 160})
+  //              .addSprite("ryuRollForward",{animation: playerAnimation["ryuRollForward"], 
+  //               posx: -200, posy: 0, width: 254, height: 160})
+  //              .addSprite("ryuApanhando4",{animation: playerAnimation["ryuApanhando4"], 
+  //               posx: -250, posy: 0, width: 254, height: 160})
+  //              .addSprite("ryuApanhando5",{animation: playerAnimation["ryuApanhando5"], 
+  //               posx: -280, posy: 0, width: 254, height: 160})
+  //              .addSprite("ryuDownDefence",{animation: playerAnimation["ryuDownDefence"], 
+  //               posx: -280, posy: 0, width: 254, height: 160})
+  //              .addSprite("ryugolpesDeKarate",{animation: playerAnimation["ryugolpesDeKarate"], 
+  //               posx: -300, posy: 0, width: 254, height: 160});
+
+                  .addSprite("ryuBeatLeft",{animation: playerAnimation["ryuBeatLeft"], 
+                   posx: xPos, posy: 0, width: 254, height: 160, callback: animate})
+                  .addSprite("ryuApanhando1",{animation: playerAnimation["ryuApanhando1"], 
+                   posx: 0, posy: 0, width: 254, height: 160})
+                  .addSprite("ryuApanhando2",{animation: playerAnimation["ryuApanhando2"], 
+                   posx: 0, posy: 0, width: 254, height: 160})
+                  .addSprite("ryuRollForward",{animation: playerAnimation["ryuRollForward"], 
+                   posx: 0, posy: 0, width: 254, height: 160})
+                  .addSprite("ryuApanhando4",{animation: playerAnimation["ryuApanhando4"], 
+                   posx: 0, posy: 0, width: 254, height: 160})
+                  .addSprite("ryuApanhando5",{animation: playerAnimation["ryuApanhando5"], 
+                   posx: 0, posy: 0, width: 254, height: 160})
+                  .addSprite("ryuDownDefence",{animation: playerAnimation["ryuDownDefence"], 
+                   posx: 0, posy: 0, width: 254, height: 160})
+                  .addSprite("ryugolpesDeKarate",{animation: playerAnimation["ryugolpesDeKarate"], 
+                   posx: 90, posy: 0, width: 254, height: 160})
+                  .addSprite("ryugolpesRasteiros",{animation: playerAnimation["ryugolpesRasteiros"], 
+                   posx: 90, posy: 0, width: 254, height: 160})
+                  .addSprite("ryuhaduken",{animation: playerAnimation["ryuhaduken"], 
+                   posx: 90, posy: 0, width: 254, height: 160})
+                  .addSprite("ryuhelicoptero",{animation: playerAnimation["ryuhelicoptero"], 
+                   posx: 90, posy: 0, width: 254, height: 160})  
+                  .addSprite("ryuoutrosgolpes2",{animation: playerAnimation["ryuoutrosgolpes2"], 
+                   posx: 90, posy: 0, width: 254, height: 160})  
+                  .addSprite("ryuoutrosgolpes",{animation: playerAnimation["ryuoutrosgolpes"], 
+                   posx: 90, posy: 0, width: 254, height: 160}) 
+                  .addSprite("ryupezadas1",{animation: playerAnimation["ryupezadas1"], 
+                   posx: 90, posy: 0, width: 254, height: 160})
+                  .addSprite("ryupezadas2",{animation: playerAnimation["ryupezadas2"], 
+                   posx: 90, posy: 0, width: 254, height: 160})
+                  .addSprite("ryuporradaparaesquerda",{animation: playerAnimation["ryuporradaparaesquerda"], 
+                   posx: 90, posy: 0, width: 254, height: 160})
+                  .addSprite("ryurolandoparafrente",{animation: playerAnimation["ryurolandoparafrente"], 
+                   posx: 90, posy: 0, width: 254, height: 160}) 
+                  .addSprite("ryusaltoporcimadooponente",{animation: playerAnimation["ryusaltoporcimadooponente"], 
+                   posx: 90, posy: 0, width: 254, height: 160}) 
+                  .addSprite("ryusocos1",{animation: playerAnimation["ryusocos1"], 
+                   posx: 90, posy: 0, width: 254, height: 160}) 
+                  .addSprite("ryusocos2",{animation: playerAnimation["ryusocos2"], 
+                   posx: 90, posy: 0, width: 254, height: 160})
+                  .addSprite("ryusubindo",{animation: playerAnimation["ryusubindo"], 
+                   posx: 90, posy: 0, width: 254, height: 160})
+                  .addSprite("ryuwin",{animation: playerAnimation["ryuwin"], 
+                   posx: 90, posy: 0, width: 254, height: 160});
+
+	
+                $("#ryuBeatLeft").hide();  
+                $("#ryuApanhando1").hide();
+                $("#ryuApanhando2").hide();  
+                $("#ryuRollForward").hide();    
+                $("#ryuApanhando4").hide();
+                $("#ryuApanhando5").hide();
+                $("#ryuDownDefence").hide();
+                $("#ryuUnderDefence").hide();
+                $("#ryuTopEscape").hide();
+                $("#ryuGingando").hide();
+                $("#ryugolpesDeKarate").hide();
+                $("#ryugolpesRasteiros").hide(); 
+                $("#ryuhaduken").hide();
+                $("#ryuhelicoptero").hide();  
+                $("#ryuoutrosgolpes2").hide();
+                $("#ryuoutrosgolpes").hide();
+                $("#ryupezadas1").hide();
+                $("#ryupezadas2").hide();
+                $("#ryuporradaparaesquerda").hide(); 
+                $("#ryurolandoparafrente").hide();
+                $("#ryusaltoporcimadooponente").hide();
+                $("#ryusocos1").hide();
+                $("#ryusocos2").hide();
+                $("#ryusubindo").hide();
+                $("#ryuwin").hide();  
+ 
+                defaultAnimation =  $("#ryuWalkAgo");  // this is the default position
+
+                $.playground().registerCallback(function() {
+
+                }, 30);
+
+                function animate( sprite ) {
+                }
+ 
+                function waitAnimation(){
+                     //kdown = false;
+                }
+ 
+                $( document ).keydown( function(e) {
+   		           switch( e.keyCode ) {
+                       case 80: // 'p' key pressed, it is a 'punch' move
+                              if( !kdown ) { 
+                                    defaultAnimation.hide(); 
+                                    currentAnimation = $("#ryugolpesRasteiros"); 
+                                    currentAnimation.css("left", "" + xPos + "px");     
+                                    currentAnimation.show(); 
+                                    kdown = true; 
+                                    currentAnimation.setAnimation( 0, waitAnimation()); 
+                              }   
+                              break; 
+
+                        case 65: // A key pressed
+                               if( !kdown ) {
+                               defaultAnimation.hide();
+                               currentAnimation = $("#ryugolpesRasteiros"); 
+                               currentAnimation.css("left", "" + xPos + "px");
+                               currentAnimation.show();
+                               kdown = true; 
+                               currentAnimation.setAnimation( 4, waitAnimation()); 
+                               }
+                               break;   
+                     
+                        case 83: // S key pressed
+                              if( !kdown ) { 
+                                    defaultAnimation.hide(); 
+                                    currentAnimation = $("#ryugolpesRasteiros"); 
+                                    currentAnimation.css("left", "" + xPos + "px");     
+                                    currentAnimation.show(); 
+                                    kdown = true; 
+                                    currentAnimation.setAnimation( 1, waitAnimation()); 
+                              }   
+                              break;   
+
+                        case 68: // D key pressed
+                               break;
+
+                       case 70: // F key pressed
+                               break;
+
+                       case 71: // G key pressed
+                               break;
+                       
+                       case 72: // H key pressed
+                               break;
+    
+                       case 90:  // 'Z' key pressed
+                               break;   
+ 
+                       case  88: // 'X' key pressed
+                              break;
+
+                       case 67: // 'C' key pressed
+                            break; 
+
+
+                        case 39: // right arrow key pressed
+                             moveRight();  
+                             break;
+                          
+                        case 37:
+                             moveLeft();  
+                             break;
+
+                        } 										
+                });
+
+
+                $(document).keyup(function(e) {
+                  switch(e.keyCode){
+
+                  case 80:
+                          stopCurrentAnimation();   
+                          break;  
+
+                  case 65: 
+                          stopCurrentAnimation(); 
+                          break;      
+
+                  case 83:
+                          stopCurrentAnimation();
+                          break; 
+
+                  case 39: 
+                          break;
+                  }       
+                }); 
+ 
+                
+                 function stopCurrentAnimation() {
+                      kdown = false;
+                      var sprite = currentAnimation;  
+                      stopAnimation( sprite ); 
+                 } 
+   
+                // This method controls in displaying
+                // the default animation.If there is no
+                // delay set, animations due to key pressed
+                // will not be displayed smoothly. 
+                function stopAnimation( sprite ) {
+                   if( !kdown ) {
+                   res = window.setTimeout(function() {
+                        sprite.hide();
+                        defaultAnimation.show();   
+                        clearTimeout( res ); 
+                   }, 200);
+                  }     
+                }
+
+                 function moveRight() {
+                   xPos = xPos + 10;  
+                   defaultAnimation.css("left", "" + xPos + "px");
+                }
+
+                function moveLeft() {
+                   xPos = xPos - 10;  
+                   defaultAnimation.css("left", "" + xPos + "px");
+                }   
+
+                 $.playground().startGame();
+
+              });
+        </script>
+    </head>
+    <body>
+        <h2 id="message"></h2>
+        <div id="playground" style="width: 350px; height: 50px; background: white"></div>
+    </body>
+</html>
+
+
