@@ -30,92 +30,92 @@
             var xPos = -150;
             var kdown = false;
             var kup   = false;
- 
+          var imagePath = "./Archive1/"; // modifiable image path
+
             $(function(){
 
                 var playerAnimation = new Array(29);
                  
-                playerAnimation["ryuWalkAgo"] = new $.gameQuery.Animation({imageURL: "ryu_andando_para_atras.png",  numberOfFrame: 7, delta: 292, rate: 90,
+                                playerAnimation["ryuWalkAgo"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_andando_para_atras.png",  numberOfFrame: 7, delta: 292, rate: 90,
                 type: $.gameQuery.ANIMATION_HORIZONTAL});      
 
-                playerAnimation["ryuBeatLeft"] = new $.gameQuery.Animation({imageURL: "ryu_porrada_para_esquerda.png",  numberOfFrame: 4, delta: 290, rate: 50, 
+                playerAnimation["ryuBeatLeft"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_porrada_para_esquerda.png",  numberOfFrame: 4, delta: 290, rate: 50, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL});
 
-                playerAnimation["ryuApanhando1"] = new $.gameQuery.Animation({imageURL: "ryu_apanhando1.png",  numberOfFrame: 7, delta: 290, rate: 120,   
+                playerAnimation["ryuApanhando1"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_apanhando1.png",  numberOfFrame: 7, delta: 290, rate: 120,   
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
  
-                playerAnimation["ryuApanhando2"] = new $.gameQuery.Animation({imageURL: "ryu_apanhando2.png",  numberOfFrame: 7, delta: 290, rate: 120,   
+                playerAnimation["ryuApanhando2"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_apanhando2.png",  numberOfFrame: 7, delta: 290, rate: 120,   
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
  		    	
-                playerAnimation["ryuRollForward"] = new $.gameQuery.Animation({imageURL: "ryu_apanhando3.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryuRollForward"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_apanhando3.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
 
-                playerAnimation["ryuApanhando4"] = new $.gameQuery.Animation({imageURL: "ryu_apanhando4.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryuApanhando4"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_apanhando4.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
 
-                playerAnimation["ryuApanhando5"] = new $.gameQuery.Animation({imageURL: "ryu_apanhando5.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryuApanhando5"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_apanhando5.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
 
-                playerAnimation["ryuDownDefence"] = new $.gameQuery.Animation({imageURL: "ryu_defesa_para_baixo.png",  numberOfFrame: 6, delta: 290, rate: 120, 
+                playerAnimation["ryuDownDefence"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_defesa_para_baixo.png",  numberOfFrame: 6, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL});
 
-                playerAnimation["ryuUnderDefence"] = new $.gameQuery.Animation({imageURL: "ryu_defesa_por_baixo.png",  numberOfFrame: 5, delta: 290, rate: 120, 
+                playerAnimation["ryuUnderDefence"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_defesa_por_baixo.png",  numberOfFrame: 5, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL});
  
-                playerAnimation["ryuTopEscape"] = new $.gameQuery.Animation({imageURL: "ryu_escapando_por_cima.png",  numberOfFrame: 5, delta: 290, rate: 120, 
+                playerAnimation["ryuTopEscape"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_escapando_por_cima.png",  numberOfFrame: 5, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL});
  
-                playerAnimation["ryuGingando"] = new $.gameQuery.Animation({imageURL: "ryu_gingando.png",  numberOfFrame: 2, delta: 290, rate: 120, 
+                playerAnimation["ryuGingando"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_gingando.png",  numberOfFrame: 2, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL});
 
-                playerAnimation["ryugolpesDeKarate"] = new $.gameQuery.Animation({imageURL: "ryu_golpesDeKarate.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                playerAnimation["ryugolpesDeKarate"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_golpesDeKarate.png",  numberOfFrame: 7, delta: 290, rate: 90, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
   
-                playerAnimation["ryugolpesRasteiros"] = new $.gameQuery.Animation({imageURL: "ryu_golpesRasteiros.png",  numberOfFrame: 7, delta: 290, rate: 40, 
+                playerAnimation["ryugolpesRasteiros"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_golpesRasteiros.png",  numberOfFrame: 7, delta: 290, rate: 40, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
                   
-                playerAnimation["ryugolpesSuperiores"] = new $.gameQuery.Animation({imageURL: "ryu_golpesSuperiores.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryugolpesSuperiores"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_golpesSuperiores.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
    
-                playerAnimation["ryuhaduken"] = new $.gameQuery.Animation({imageURL: "ryu_haduken.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryuhaduken"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_haduken.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
                  
-                playerAnimation["ryuhelicoptero"] = new $.gameQuery.Animation({imageURL: "ryu_helicoptero.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryuhelicoptero"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_helicoptero.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
   
-                playerAnimation["ryuoutrosgolpes2"] = new $.gameQuery.Animation({imageURL: "ryu_outros_golpes2.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryuoutrosgolpes2"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_outros_golpes2.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});  
                  
-                playerAnimation["ryuoutrosgolpes"] = new $.gameQuery.Animation({imageURL: "ryu_outros_golpes.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryuoutrosgolpes"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_outros_golpes.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});  
 
-                playerAnimation["ryupezadas1"] = new $.gameQuery.Animation({imageURL: "ryu_pezadas1.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryupezadas1"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_pezadas1.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});  
 
-                playerAnimation["ryupezadas2"] = new $.gameQuery.Animation({imageURL: "ryu_pezadas2.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryupezadas2"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_pezadas2.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});  
 
-                playerAnimation["ryuporradaparaesquerda"] = new $.gameQuery.Animation({imageURL: "ryu_porrada_para_esquerda.png",  numberOfFrame: 4, delta: 290, rate: 120, 
+                playerAnimation["ryuporradaparaesquerda"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_porrada_para_esquerda.png",  numberOfFrame: 4, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL});  
  							 
-                playerAnimation["ryurolandoparafrente"] = new $.gameQuery.Animation({imageURL: "ryu_rolando_para_frente.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryurolandoparafrente"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_rolando_para_frente.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL}); 
 
-                playerAnimation["ryusaltoporcimadooponente"] = new $.gameQuery.Animation({imageURL: "ryu_salto_por_cima_do_oponente.png",  numberOfFrame: 7, delta: 290, rate: 120, 
+                playerAnimation["ryusaltoporcimadooponente"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_salto_por_cima_do_oponente.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200}); 
 
-                playerAnimation["ryusocos1"] = new $.gameQuery.Animation({imageURL: "ryu_socos1.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                playerAnimation["ryusocos1"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_socos1.png",  numberOfFrame: 7, delta: 290, rate: 90, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200}); 
 
-                playerAnimation["ryusocos2"] = new $.gameQuery.Animation({imageURL: "ryu_socos2.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                playerAnimation["ryusocos2"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_socos2.png",  numberOfFrame: 7, delta: 290, rate: 90, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});     
 
-                playerAnimation["ryusubindo"] = new $.gameQuery.Animation({imageURL: "ryu_subindo.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                playerAnimation["ryusubindo"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_subindo.png",  numberOfFrame: 7, delta: 290, rate: 90, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});     
  
-                playerAnimation["ryuwin"] = new $.gameQuery.Animation({imageURL: "ryu_win.png",  numberOfFrame: 7, delta: 290, rate: 90, 
-                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});     
- 
+                playerAnimation["ryuwin"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_win.png",  numberOfFrame: 7, delta: 290, rate: 90, 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200}); 
    
                 $("#playground").playground({height: PLAYGROUND_HEIGHT, width: PLAYGROUND_WIDTH})
                 .addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT})
