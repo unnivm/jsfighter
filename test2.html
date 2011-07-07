@@ -27,16 +27,24 @@
             var currentAnimation  = null;
             var defaultAnimation  = null;
             var res ;
-            var xPos = -150;
+            var xPos = 0; // -150;
             var kdown = false;
             var kup   = false;
-          var imagePath = "./Archive1/"; // modifiable image path
+            var imagePath = "./Archive1/";
+            var aboboPath = "./abobo/"; 
+            var gameOver  = false;
+            var aboboXPos = 400; //50;
 
+ 
             $(function(){
 
+                var aboboAnimation  = new Array(10);
                 var playerAnimation = new Array(29);
                  
-                                playerAnimation["ryuWalkAgo"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_andando_para_atras.png",  numberOfFrame: 7, delta: 292, rate: 90,
+                aboboAnimation["aboboRightPunch"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_punch_131x170x4.png",  numberOfFrame: 4, delta: 131, rate: 150,
+                type: $.gameQuery.ANIMATION_HORIZONTAL});
+                
+                playerAnimation["ryuWalkAgo"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_andando_para_atras.png",  numberOfFrame: 7, delta: 292, rate: 90,
                 type: $.gameQuery.ANIMATION_HORIZONTAL});      
 
                 playerAnimation["ryuBeatLeft"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_porrada_para_esquerda.png",  numberOfFrame: 4, delta: 290, rate: 50, 
@@ -115,13 +123,17 @@
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});     
  
                 playerAnimation["ryuwin"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_win.png",  numberOfFrame: 7, delta: 290, rate: 90, 
-                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200}); 
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});     
+ 
    
                 $("#playground").playground({height: PLAYGROUND_HEIGHT, width: PLAYGROUND_WIDTH})
                 .addGroup("actors", {width: PLAYGROUND_WIDTH, height: PLAYGROUND_HEIGHT})
-                .addGroup("player", {posx: PLAYGROUND_WIDTH/2, posy: PLAYGROUND_HEIGHT/2, width: 100, height: 26})
+                //.addGroup("player", {posx: PLAYGROUND_WIDTH/2, posy: PLAYGROUND_HEIGHT/2, width: 100, height: 26})
+                .addGroup("player", {posx: 0, posy: 0, width: PLAYGROUND_WIDTH, height: 126})
+                .addSprite("aboboRightPunch",{animation: aboboAnimation["aboboRightPunch"],
+                posx: aboboXPos, posy: 0, width: 131, height: 170})  
                 .addSprite("ryuWalkAgo",{animation: playerAnimation["ryuWalkAgo"],
-                posx: -150, posy: 0, width: 290, height: 160})
+                posx: xPos, posy: 0, width: 290, height: 160})
 //                .addSprite("ryuBeatLeft",{animation: playerAnimation["ryuBeatLeft"], 
 //                 posx: -190, posy: 0, width: 254, height: 160})
  //               .addSprite("ryuApanhando1",{animation: playerAnimation["ryuApanhando1"], 
@@ -184,7 +196,7 @@
                   .addSprite("ryuwin",{animation: playerAnimation["ryuwin"], 
                    posx: 90, posy: 0, width: 254, height: 160});
 
-	
+	         // $("#aboboRightPunch").hide(); 
                 $("#ryuBeatLeft").hide();  
                 $("#ryuApanhando1").hide();
                 $("#ryuApanhando2").hide();  
@@ -214,7 +226,26 @@
                 defaultAnimation =  $("#ryuWalkAgo");  // this is the default position
 
                 $.playground().registerCallback(function() {
-
+                      var collided = $("#ryuWalkAgo").collision("#aboboRightPunch,.group");
+                      //var collided = $("#ryuWalkAgo").collision("#aboboRightPunch,.group");  
+                      //var collided = $("#ryuWalkAgo").collision(".group,#aboboRightPunch");
+                       //moveRight();
+                      //if( collided.length > 0 ) {
+                         // if( !kdown ) {
+                         //   defaultAnimation.hide();
+                         //   currentAnimation = $("#ryuApanhando5"); 
+                         //   currentAnimation.css("left", "" + xPos + "px"); 
+                         //   currentAnimation.show();  
+                         //   currentAnimation.setAnimation(0);
+                         // } 
+                      //}
+                        if( detectCollision() ) {
+                             defaultAnimation.hide();
+                             currentAnimation = $("#ryuApanhando5"); 
+                             currentAnimation.css("left", "" + xPos + "px"); 
+                             currentAnimation.show();  
+                             currentAnimation.setAnimation(0);      
+                        }    
                 }, 30);
 
                 function animate( sprite ) {
@@ -260,12 +291,36 @@
                               break;   
 
                         case 68: // D key pressed
+                             if( !kdown ) { 
+                                    defaultAnimation.hide(); 
+                                    currentAnimation = $("#ryugolpesRasteiros"); 
+                                    currentAnimation.css("left", "" + xPos + "px");     
+                                    currentAnimation.show(); 
+                                    kdown = true; 
+                                    currentAnimation.setAnimation( 2, waitAnimation()); 
+                              }   
                                break;
 
                        case 70: // F key pressed
+                               if( !kdown ) { 
+                                    defaultAnimation.hide(); 
+                                    currentAnimation = $("#ryugolpesRasteiros"); 
+                                    currentAnimation.css("left", "" + xPos + "px");     
+                                    currentAnimation.show(); 
+                                    kdown = true; 
+                                    currentAnimation.setAnimation( 3, waitAnimation()); 
+                                }   
                                break;
 
                        case 71: // G key pressed
+                             if( !kdown ) { 
+                                    defaultAnimation.hide(); 
+                                    currentAnimation = $("#ryuBeatLeft"); 
+                                    currentAnimation.css("left", "" + xPos + "px");     
+                                    currentAnimation.show(); 
+                                    kdown = true; 
+                                    currentAnimation.setAnimation( 0, waitAnimation()); 
+                              }   
                                break;
                        
                        case 72: // H key pressed
@@ -282,10 +337,12 @@
 
 
                         case 39: // right arrow key pressed
+                             kdown = true; 
                              moveRight();  
                              break;
                           
                         case 37:
+                             kdown = true; 
                              moveLeft();  
                              break;
 
@@ -308,8 +365,26 @@
                           stopCurrentAnimation();
                           break; 
 
-                  case 39: 
+                  case 68: 
+                          stopCurrentAnimation();
                           break;
+                  
+                  case 70: 
+                          stopCurrentAnimation();
+                          break;
+
+                  case 71: 
+                          stopCurrentAnimation();
+                          break;    
+                  
+                  case 37:
+                          kdown = false;
+                          break;
+
+                  case 39:
+                         kdown = false;
+                         break;
+       
                   }       
                 }); 
  
@@ -335,8 +410,10 @@
                 }
 
                  function moveRight() {
-                   xPos = xPos + 10;  
+                   xPos = xPos + 30;  
+                   defaultAnimation.addSprite("ryuWalkAgo", {animation: playerAnimation["ryuWalkAgo"], posx: xPos, posy: 0, width: 290, height: 160});
                    defaultAnimation.css("left", "" + xPos + "px");
+                   //defaultAnimation.posx = xPos;
                 }
 
                 function moveLeft() {
@@ -344,15 +421,21 @@
                    defaultAnimation.css("left", "" + xPos + "px");
                 }   
 
+                function detectCollision() {
+                   var left = defaultAnimation.position().left;
+                   document.getElementById("log").innerHTML = left;  
+                   if( left >= aboboXPos) return true; 
+                   else return false;                       
+                } 
                  $.playground().startGame();
-
               });
         </script>
     </head>
     <body>
         <h2 id="message"></h2>
-        <div id="playground" style="width: 350px; height: 50px; background: white"></div>
+        <div id = "log">value:</div> 
+        <div id ="playground" style="width: 350px; height: 50px; background: white"></div>
+        
     </body>
 </html>
-
 
