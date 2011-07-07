@@ -33,7 +33,7 @@
             var imagePath = "./Archive1/";
             var aboboPath = "./abobo/"; 
             var gameOver  = false;
-            var aboboXPos = 400; //50;
+            var aboboXPos = 300; //50;
 
  
             $(function(){
@@ -231,15 +231,16 @@
                       //var collided = $("#ryuWalkAgo").collision(".group,#aboboRightPunch");
                        //moveRight();
                       //if( collided.length > 0 ) {
-                         // if( !kdown ) {
-                         //   defaultAnimation.hide();
-                         //   currentAnimation = $("#ryuApanhando5"); 
-                         //   currentAnimation.css("left", "" + xPos + "px"); 
-                         //   currentAnimation.show();  
-                         //   currentAnimation.setAnimation(0);
-                         // } 
+                      //    if( !kdown ) {
+                      //      defaultAnimation.hide();
+                      //      currentAnimation = $("#ryuApanhando5"); 
+                      //      currentAnimation.css("left", "" + xPos + "px"); 
+                      //      currentAnimation.show();  
+                      //      currentAnimation.setAnimation(0);
+                       //   } 
                       //}
-                        if( detectCollision() ) {
+                        
+                          if( detectCollision() ) {
                              defaultAnimation.hide();
                              currentAnimation = $("#ryuApanhando5"); 
                              currentAnimation.css("left", "" + xPos + "px"); 
@@ -410,7 +411,7 @@
                 }
 
                  function moveRight() {
-                   xPos = xPos + 30;  
+                   xPos = xPos + 75;  
                    defaultAnimation.addSprite("ryuWalkAgo", {animation: playerAnimation["ryuWalkAgo"], posx: xPos, posy: 0, width: 290, height: 160});
                    defaultAnimation.css("left", "" + xPos + "px");
                    //defaultAnimation.posx = xPos;
@@ -424,7 +425,7 @@
                 function detectCollision() {
                    var left = defaultAnimation.position().left;
                    document.getElementById("log").innerHTML = left;  
-                   if( left >= aboboXPos) return true; 
+                   if( left >= aboboXPos - 165) return true; 
                    else return false;                       
                 } 
                  $.playground().startGame();
@@ -438,4 +439,6 @@
         
     </body>
 </html>
+
+
 
