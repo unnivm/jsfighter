@@ -34,7 +34,18 @@
             var aboboPath = "./abobo/"; 
             var gameOver  = false;
             var aboboXPos = 300; //50;
+            var aboboFallXPos = 400;
+            var anyKeyPressed = false;
+            var idleTimer = 0;  
+             
+            // this variable keeps track of abobo's attack including
+            // all its possible movements.
+   
+            var aboboAttackCount = 0;
+            var userAttackCount  = 0; 
 
+            var aboboHealthCount = 0;
+            var ABOBOMINHEALTH = 5;    
  
             $(function(){
 
@@ -42,8 +53,15 @@
                 var playerAnimation = new Array(29);
                  
                 aboboAnimation["aboboRightPunch"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_punch_131x170x4.png",  numberOfFrame: 4, delta: 131, rate: 150,
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_CALLBACK});
+           
+//                aboboAnimation["aboboFallBack"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_walk_backward_94x126x6.png",  numberOfFrame: 6, delta: 131, rate: 150,
+//                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:100});
+
+		    aboboAnimation["aboboFallBack"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_block_81x130x1.png",  rate: 700,
                 type: $.gameQuery.ANIMATION_HORIZONTAL});
-                
+	                
+
                 playerAnimation["ryuWalkAgo"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_andando_para_atras.png",  numberOfFrame: 7, delta: 292, rate: 90,
                 type: $.gameQuery.ANIMATION_HORIZONTAL});      
 
@@ -131,7 +149,9 @@
                 //.addGroup("player", {posx: PLAYGROUND_WIDTH/2, posy: PLAYGROUND_HEIGHT/2, width: 100, height: 26})
                 .addGroup("player", {posx: 0, posy: 0, width: PLAYGROUND_WIDTH, height: 126})
                 .addSprite("aboboRightPunch",{animation: aboboAnimation["aboboRightPunch"],
-                posx: aboboXPos, posy: 0, width: 131, height: 170})  
+                posx: aboboXPos, posy: 0, width: 131, height: 170, callback: aboboAttackAnimation})
+                .addSprite("aboboFallBack", {animation: aboboAnimation["aboboFallBack"],
+                 posx: aboboFallXPos, posy: 0, width: 81, height: 125, callback: aboboFallAnimation})    
                 .addSprite("ryuWalkAgo",{animation: playerAnimation["ryuWalkAgo"],
                 posx: xPos, posy: 0, width: 290, height: 160})
 //                .addSprite("ryuBeatLeft",{animation: playerAnimation["ryuBeatLeft"], 
@@ -196,7 +216,7 @@
                   .addSprite("ryuwin",{animation: playerAnimation["ryuwin"], 
                    posx: 90, posy: 0, width: 254, height: 160});
 
-	         // $("#aboboRightPunch").hide(); 
+	      //    $("#aboboFallBack").hide(); 
                 $("#ryuBeatLeft").hide();  
                 $("#ryuApanhando1").hide();
                 $("#ryuApanhando2").hide();  
@@ -225,7 +245,12 @@
  
                 defaultAnimation =  $("#ryuWalkAgo");  // this is the default position
 
+                $("#aboboRightPunch").show(); 
+                $("#aboboRightPunch").setAnimation(0, aboboAttackAnimation()); 
+
                 $.playground().registerCallback(function() {
+                      
+                     // $("#aboboFallBack").setAnimation( 14 );
                       var collided = $("#ryuWalkAgo").collision("#aboboRightPunch,.group");
                       //var collided = $("#ryuWalkAgo").collision("#aboboRightPunch,.group");  
                       //var collided = $("#ryuWalkAgo").collision(".group,#aboboRightPunch");
@@ -241,11 +266,23 @@
                       //}
                         
                           if( detectCollision() ) {
+                             
+                             // Check whether the user has pressed any key
+                             // while defending abobo.If no key pressed within
+                             // specified time, then it is a fallback for the player.      
+                             if( !anyKeyPressed ) {
                              defaultAnimation.hide();
                              currentAnimation = $("#ryuApanhando5"); 
                              currentAnimation.css("left", "" + xPos + "px"); 
                              currentAnimation.show();  
                              currentAnimation.setAnimation(0);      
+                            } else  {
+                                if( userAttackCount > aboboAttackCount ) { // there is a definite adv on the user side.
+                                     updateAboboHealthBar(); 
+                                     $("#aboboFallBack").show();
+                                     $("#aboboRightPunch").hide(); 
+                                }
+                            }
                         }    
                 }, 30);
 
@@ -254,8 +291,44 @@
  
                 function waitAnimation(){
                      //kdown = false;
+                     
+                }
+                // This is the callback method for abobo animation.
+                // This callback method animation is depending upon the 
+                // frame rate specified while defining the animation        
+                function aboboAttackAnimation() {
+                     if( aboboAttackCount< 50 ) 
+                     aboboAttackCount++;
+                     log( "abobo attack count.... " + aboboAttackCount );
+                }
+
+                function aboboFallAnimation() {
+                         
                 }
  
+                function updateAboboHealthBar() {
+                        if( aboboHealthCount < ABOBOMINHEALTH ) {
+                           // abobo finishes 
+                             aboboDownAnimation();
+                        }
+                        aboboHealthCount--;
+                }
+
+                function playerAnimation() {
+
+                }
+
+    
+                function aboboDownAnimation() {
+                  gameOver();          
+                }
+
+                // this method updates the screen 
+                // with suitable animation sequences
+                function gameOver() {
+                   
+                }
+
                 $( document ).keydown( function(e) {
    		           switch( e.keyCode ) {
                        case 80: // 'p' key pressed, it is a 'punch' move
@@ -264,7 +337,9 @@
                                     currentAnimation = $("#ryugolpesRasteiros"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true; 
+                                    kdown = true;
+						anyKeyPressed = true;
+                                    userAttackCount++;  
                                     currentAnimation.setAnimation( 0, waitAnimation()); 
                               }   
                               break; 
@@ -276,6 +351,8 @@
                                currentAnimation.css("left", "" + xPos + "px");
                                currentAnimation.show();
                                kdown = true; 
+					 anyKeyPressed = true;
+                               userAttackCount++; 
                                currentAnimation.setAnimation( 4, waitAnimation()); 
                                }
                                break;   
@@ -286,7 +363,9 @@
                                     currentAnimation = $("#ryugolpesRasteiros"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true; 
+                                    kdown = true;
+                                    anyKeyPressed = true;
+                                    userAttackCount++;   
                                     currentAnimation.setAnimation( 1, waitAnimation()); 
                               }   
                               break;   
@@ -297,7 +376,9 @@
                                     currentAnimation = $("#ryugolpesRasteiros"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true; 
+                                    kdown = true;
+                                    anyKeyPressed = true;
+                                    userAttackCount++;    
                                     currentAnimation.setAnimation( 2, waitAnimation()); 
                               }   
                                break;
@@ -308,7 +389,9 @@
                                     currentAnimation = $("#ryugolpesRasteiros"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true; 
+                                    kdown = true;
+                                    anyKeyPressed = true;
+                                    userAttackCount++;      
                                     currentAnimation.setAnimation( 3, waitAnimation()); 
                                 }   
                                break;
@@ -319,7 +402,9 @@
                                     currentAnimation = $("#ryuBeatLeft"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true; 
+                                    kdown = true;
+                                    anyKeyPressed = true;
+                                    userAttackCount++;    
                                     currentAnimation.setAnimation( 0, waitAnimation()); 
                               }   
                                break;
@@ -338,12 +423,14 @@
 
 
                         case 39: // right arrow key pressed
-                             kdown = true; 
+                             kdown = true;
+                             anyKeyPressed = true; 
                              moveRight();  
                              break;
                           
                         case 37:
-                             kdown = true; 
+                             kdown = true;
+                             anyKeyPressed = true;  
                              moveLeft();  
                              break;
 
@@ -424,10 +511,16 @@
 
                 function detectCollision() {
                    var left = defaultAnimation.position().left;
-                   document.getElementById("log").innerHTML = left;  
+                   //log( left ); 
                    if( left >= aboboXPos - 165) return true; 
                    else return false;                       
-                } 
+                }
+
+                // logs all the messages 
+                function log( msg ) {
+                  document.getElementById("log").innerHTML = msg;  
+                }   
+
                  $.playground().startGame();
               });
         </script>
