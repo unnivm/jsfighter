@@ -26,6 +26,8 @@
             var PLAYGROUND_HEIGHT = 350;   
             var currentAnimation  = null;
             var defaultAnimation  = null;
+            var aboboCurrentAnimation = null;
+            var aboboDefaultAnimation = null; 
             var res ;
             var xPos = 0; // -150;
             var kdown = false;
@@ -48,8 +50,10 @@
             var aboboHealthCount = 0;
             var ABOBOMINHEALTH = 5;    
 
-            var DISTANCE = 100;
-  
+            var DISTANCE = 165;
+
+            var isCollided = false;
+   
             $(function(){
 
                 var playGroundAnimation = new Array(6); 
@@ -62,10 +66,12 @@
 //                aboboAnimation["aboboFallBack"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_walk_backward_94x126x6.png",  numberOfFrame: 6, delta: 131, rate: 150,
 //                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:100});
 
-		    aboboAnimation["aboboFallBack"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_walk_backward_94x126x6.png",  rate: 700,
+		    aboboAnimation["aboboFallBack"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_walk_backward_94x126x6.png",  numberOfFrame: 3, delta: 94, rate: 150,
                 type: $.gameQuery.ANIMATION_HORIZONTAL});
 	                
-
+     		    aboboAnimation["aboboHit"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_hit_108x120x3.png",  numberOfFrame: 3, delta: 108, rate: 150,
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_CALLBACK});
+                 
                 playerAnimation["ryuWalkAgo"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_andando_para_atras.png",  numberOfFrame: 7, delta: 292, rate: 90,
                 type: $.gameQuery.ANIMATION_HORIZONTAL});      
 
@@ -183,7 +189,10 @@
                 .addSprite("aboboRightPunch",{animation: aboboAnimation["aboboRightPunch"],
                 posx: aboboXPos, posy: 0, width: 131, height: 170, callback: aboboAttackAnimation})
                 .addSprite("aboboFallBack", {animation: aboboAnimation["aboboFallBack"],
-                 posx: aboboFallXPos, posy: 0, width: 81, height: 125, callback: aboboFallAnimation})    
+                 posx: aboboFallXPos, posy: 0, width: 91, height: 125, callback: aboboFallAnimation})    
+                 .addSprite("aboboHit", {animation: aboboAnimation["aboboHit"],
+                 posx: aboboXPos, posy: 0, width: 108, height: 113, callback: aboboFallAnimation})    
+
                 .addSprite("ryuWalkAgo",{animation: playerAnimation["ryuWalkAgo"],
                 posx: xPos, posy: 0, width: 290, height: 160})
 //                .addSprite("ryuBeatLeft",{animation: playerAnimation["ryuBeatLeft"], 
@@ -248,7 +257,8 @@
                   .addSprite("ryuwin",{animation: playerAnimation["ryuwin"], 
                    posx: 90, posy: 0, width: 254, height: 160});
 
-	          $("#aboboFallBack").hide(); 
+	          $("#aboboFallBack").hide();
+                $("#aboboHit").hide(); 
                 $("#ryuBeatLeft").hide();  
                 $("#ryuApanhando1").hide();
                 $("#ryuApanhando2").hide();  
@@ -276,6 +286,7 @@
                 $("#ryuwin").hide();  
  
                 defaultAnimation =  $("#ryuWalkAgo");  // this is the default position
+                aboboDefaultAnimation = $("#aboboRightPunch");
 
                 $("#aboboRightPunch").show(); 
                 $("#aboboRightPunch").setAnimation(0, aboboAttackAnimation()); 
@@ -298,24 +309,19 @@
                       //}
                         
                           if( detectCollision() ) {
-                             
-                             // Check whether the user has pressed any key
-                             // while defending abobo.If no key pressed within
-                             // specified time, then it is a fallback for the player.      
-                             if( !anyKeyPressed ) {
-                             defaultAnimation.hide();
-                             currentAnimation = $("#ryuApanhando5"); 
-                             currentAnimation.css("left", "" + xPos + "px"); 
-                             currentAnimation.show();  
-                             currentAnimation.setAnimation(0);      
-                            } else  {
+                             setCollided();   
+                             log(" user Attack count " + userAttackCount);
                                 if( userAttackCount > aboboAttackCount ) { // there is a definite adv on the user side.
-                                     updateAboboHealthBar(); 
-                                     $("#aboboFallBack").show();
-                                     $("#aboboRightPunch").hide(); 
+                                     //displayAnimationWithDelay($("#aboboFallBack"));
+                                     for(var i = 0; i<15; i++) {  
+                                      //delay( 1000 );
+                                       displayAnimationWithDelay($("#aboboFallBack"));
+                                        moveAboboRight($("#aboboFallBack"));   
+                                     } 
                                 }
-                            }
-                        }    
+                        } else {
+                             log(" else block ....user Attack count " + userAttackCount);
+                          }   
                 }, 30);
 
                 function animate() {
@@ -326,9 +332,7 @@
 			 if( aboboAttackCount< 50 ) 
                      aboboAttackCount++;
                    log( "\r\n abobo attack count.... " + aboboAttackCount );
-	
- 
-                }
+	          }
  
                 function waitAnimation(){
                      //kdown = false;
@@ -349,7 +353,6 @@
                 }
  
                 function aboboFallAnimation() {
-                         
                 }
  
                 function updateAboboHealthBar() {
@@ -372,7 +375,6 @@
                 // this method updates the screen 
                 // with suitable animation sequences
                 function gameOver() {
-                   
                 }
 
                 $( document ).keydown( function(e) {
@@ -383,11 +385,11 @@
                                     currentAnimation = $("#ryugolpesRasteiros"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true;
-						anyKeyPressed = true;
-                                    userAttackCount++;  
+                               //     kdown = true;
+					//	anyKeyPressed = true;
+                                    registerUserAttackCount();
                                     currentAnimation.setAnimation( 0, waitAnimation()); 
-                              }   
+                                }   
                               break; 
 
                         case 65: // A key pressed
@@ -396,10 +398,10 @@
                                currentAnimation = $("#ryugolpesRasteiros"); 
                                currentAnimation.css("left", "" + xPos + "px");
                                currentAnimation.show();
-                               kdown = true; 
-					 anyKeyPressed = true;
-                               userAttackCount++; 
-                               currentAnimation.setAnimation( 4, waitAnimation()); 
+                             //  kdown = true; 
+					// anyKeyPressed = true;
+                                registerUserAttackCount(); 
+                                currentAnimation.setAnimation( 4, waitAnimation()); 
                                }
                                break;   
                      
@@ -409,9 +411,9 @@
                                     currentAnimation = $("#ryugolpesRasteiros"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true;
-                                    anyKeyPressed = true;
-                                    userAttackCount++;   
+                                  //  kdown = true;
+                                   // anyKeyPressed = true;
+                                    registerUserAttackCount();   
                                     currentAnimation.setAnimation( 1, waitAnimation()); 
                               }   
                               break;   
@@ -422,9 +424,9 @@
                                     currentAnimation = $("#ryugolpesRasteiros"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true;
-                                    anyKeyPressed = true;
-                                    userAttackCount++;    
+                                  //  kdown = true;
+                                   // anyKeyPressed = true;
+                                    registerUserAttackCount();    
                                     currentAnimation.setAnimation( 2, waitAnimation()); 
                               }   
                                break;
@@ -435,9 +437,9 @@
                                     currentAnimation = $("#ryugolpesRasteiros"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true;
-                                    anyKeyPressed = true;
-                                    userAttackCount++;      
+                                //    kdown = true;
+                                   // anyKeyPressed = true;
+                                    registerUserAttackCount();      
                                     currentAnimation.setAnimation( 3, waitAnimation()); 
                                 }   
                                break;
@@ -448,9 +450,9 @@
                                     currentAnimation = $("#ryuBeatLeft"); 
                                     currentAnimation.css("left", "" + xPos + "px");     
                                     currentAnimation.show(); 
-                                    kdown = true;
-                                    anyKeyPressed = true;
-                                    userAttackCount++;    
+                              //      kdown = true;
+                                   // anyKeyPressed = true;
+                                    registerUserAttackCount();    
                                     currentAnimation.setAnimation( 0, waitAnimation()); 
                               }   
                                break;
@@ -469,14 +471,14 @@
 
 
                         case 39: // right arrow key pressed
-                             kdown = true;
-                             anyKeyPressed = true; 
+                            // kdown = true;
+                            // anyKeyPressed = true; 
                              moveRight();  
                              break;
                           
                         case 37:
-                             kdown = true;
-                             anyKeyPressed = true;  
+                            // kdown = true;
+                            // anyKeyPressed = true;  
                              moveLeft();  
                              break;
 
@@ -543,28 +545,65 @@
                   }     
                 }
 
+                function displayAnimationWithDelay( sprite ) {
+                   var res = null;
+                   res = window.setTimeout(function() {
+                         aboboDefaultAnimation.hide();    
+                         sprite.show();
+                         clearTimeout( res ); 
+                   }, 800);    
+                }
+   
+                function delay( timer ) {
+                   var res = null;
+                   res = window.setTimeout(function() {
+                   clearTimeout( res );
+                  }, 200);     
+                }
+  
                  function moveRight() {
                    xPos = xPos + 75;  
-                   defaultAnimation.addSprite("ryuWalkAgo", {animation: playerAnimation["ryuWalkAgo"], posx: xPos, posy: 0, width: 290, height: 160});
-                   defaultAnimation.css("left", "" + xPos + "px");
-                   //defaultAnimation.posx = xPos;
+                  // defaultAnimation.addSprite("ryuWalkAgo", {animation: playerAnimation["ryuWalkAgo"], posx: xPos, posy: 0, width: 290, height: 160});
+                    defaultAnimation.css("left", "" + xPos + "px");
                 }
 
                 function moveLeft() {
                    xPos = xPos - 10;  
                    defaultAnimation.css("left", "" + xPos + "px");
+                   if( !detectCollision() ) {
+                      userAttackCount = 0;
+                      isCollided = false;  
+                    }
                 }   
+                
+                function moveAboboRight( abobo ) {
+                  aboboXPos =  aboboXPos + 15;
+                  abobo.css("left", "" + aboboXPos + "px");
+                }
+
+                function moveAboboLeft( abobo ) {
+                  aboboXPos =  aboboXPos - 10;
+                  abobo.css("left", "" + aboboXPos + "px");
+                } 
 
                 function detectCollision() {
                    var left = defaultAnimation.position().left;
-                   //log( left ); 
-                   if( left >= aboboXPos - 165) return true; 
+                   if( left >= aboboXPos - DISTANCE ) return true; 
                    else return false;                       
                 }
 
+                function setCollided() {
+                   isCollided = true;
+                }
+
+                function registerUserAttackCount() {
+                   if( isCollided ) userAttackCount++;
+                   else userAttackCount = 0;                      
+                } 
+   
                 // logs all the messages 
                 function log( msg ) {
-                  document.getElementById("log").innerHTML = msg;  
+                   document.getElementById("log").innerHTML = msg;  
                 }   
 
                  $.playground().startGame();
