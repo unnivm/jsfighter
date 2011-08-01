@@ -7,7 +7,7 @@
 //	under the terms of the GNU Lesser General Public License as published by the
 //	Free Software Foundation; either version 3 of the License, or (at your
 //	option) any later version.
-//	This program is distributed in the hope that it will be useful, but WITHOUT
+//	This program is distributed in the hope that it will be useful, but x
 //	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //	FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for
 //	more details.
@@ -18,7 +18,8 @@
 
  <html>
     <head>
-        <script src="jquery-14a.js"></script>
+        <!--<script src="jquery-14a.js"></script>-->
+		<script src="jquery.min.js"></script>
         <script src="jquery.gamequery-0.5.1.js"></script>
         <script>
 
@@ -32,11 +33,14 @@
             var xPos = 0; // -150;
             var kdown = false;
             var kup   = false;
-            var imagePath = "./Archive1/";
-            var aboboPath = "./abobo/"; 
-            var palyGroundPath = "./stage/";
+            //var imagePath = "./Archive1/";
+			var imagePath = "";
+            //var aboboPath = "./abobo/";
+			var aboboPath = ""; 
+            //var palyGroundPath = "./stage/";
+            var palyGroundPath = "";
             var gameOver  = false;
-            var aboboXPos = 300; //50;
+            var aboboXPos = 500; //50;
             var aboboFallXPos = 400;
             var anyKeyPressed = false;
             var idleTimer = 0;  
@@ -53,30 +57,63 @@
             var DISTANCE = 165;
 
             var isCollided = false;
-   
+
+            var xdelta = 10;
+            
+			var start = true;
+
+			var FRONT = true;
+
+            var PLAYERFRONT = true;
+
+            var aboboTimer = null;
+
+			var level = 1;
+			
+			var deltaCount = 2;
+
+            var playerLifeCounter = 0;
+			
             $(function(){
 
                 var playGroundAnimation = new Array(6); 
                 var aboboAnimation  = new Array(10);
                 var playerAnimation = new Array(29);
-                 
+				var aboboLife  = [];
+				var playerLife = [];
+				var moves = new Array(4);
+
+                var currMove = "PUNCH"; 
+				moves[0]  = "IDLE";
+				moves[1]  = "PUNCH";
+                moves[2]  = "KICK";   
+                moves[3]  = "BLOCK";    
+
                 aboboAnimation["aboboRightPunch"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_punch_131x170x4.png",  numberOfFrame: 4, delta: 131, rate: 150,
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_CALLBACK});
            
-//                aboboAnimation["aboboFallBack"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_walk_backward_94x126x6.png",  numberOfFrame: 6, delta: 131, rate: 150,
-//                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:100});
+                aboboAnimation["aboboWalkForward"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_walk_forward_94x126x6.png",  numberOfFrame: 6, delta: 94, rate: 150, type: $.gameQuery.ANIMATION_HORIZONTAL});
 
-		    aboboAnimation["aboboFallBack"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_walk_backward_94x126x6.png",  numberOfFrame: 3, delta: 94, rate: 150,
-                type: $.gameQuery.ANIMATION_HORIZONTAL});
+		        aboboAnimation["aboboFallBack"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_walk_backward_94x126x6.png",  numberOfFrame: 3, delta: 94, rate: 150, type: $.gameQuery.ANIMATION_HORIZONTAL});
 	                
-     		    aboboAnimation["aboboHit"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_hit_108x120x3.png",  numberOfFrame: 3, delta: 108, rate: 150,
-                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_CALLBACK});
+     		    aboboAnimation["aboboHit"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_hit_108x120x3.png",  numberOfFrame: 3, delta: 108, rate: 1500, type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_CALLBACK});
                  
-                playerAnimation["ryuWalkAgo"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_andando_para_atras.png",  numberOfFrame: 7, delta: 292, rate: 90,
-                type: $.gameQuery.ANIMATION_HORIZONTAL});      
+     		    aboboAnimation["aboboKick"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_kick_137x130x2.png",  numberOfFrame: 2, delta: 137, rate: 500, type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_CALLBACK});
 
-                playerAnimation["ryuBeatLeft"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_porrada_para_esquerda.png",  numberOfFrame: 4, delta: 290, rate: 50, 
-                type: $.gameQuery.ANIMATION_HORIZONTAL});
+           		aboboAnimation["aboboIdle"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_idle_100x121x3.png",  numberOfFrame: 3, delta: 100, rate: 500, type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_CALLBACK});
+ 
+           		aboboAnimation["aboboBlock"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobo_block_81x130x1.png",  rate: 900, 
+				type:  $.gameQuery.ANIMATION_CALLBACK});
+
+          		aboboAnimation["aboboWin"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobowin.png",  numberOfFrame: 4, delta: 157, rate: 250, type:  $.gameQuery.ANIMATION_HORIZONTAL});
+
+                aboboLife["life"] = new $.gameQuery.Animation({imageURL: aboboPath + "abobolife.png", rate: 950, type: $.gameQuery.ANIMATION_CALLBACK});
+
+                playerLife["life"] = new $.gameQuery.Animation({imageURL: aboboPath + "playerlife.png", rate: 950, type: $.gameQuery.ANIMATION_CALLBACK});
+  
+				playerAnimation["ryuWalkAgo"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_andando_para_atras.png",  numberOfFrame: 7, delta: 292, rate: 90,type: $.gameQuery.ANIMATION_HORIZONTAL});      
+
+                playerAnimation["ryuBeatLeft"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_porrada_para_esquerda.png",  numberOfFrame: 4, delta: 290, rate: 100, type: $.gameQuery.ANIMATION_HORIZONTAL |$.gameQuery.ANIMATION_CALLBACK});
 
                 playerAnimation["ryuApanhando1"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_apanhando1.png",  numberOfFrame: 7, delta: 290, rate: 120,   
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
@@ -109,7 +146,7 @@
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
   
                 playerAnimation["ryugolpesRasteiros"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_golpesRasteiros.png",  numberOfFrame: 7, delta: 290, rate: 40, 
-                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
+                type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI |$.gameQuery.ANIMATION_CALLBACK, distance:200});
                   
                 playerAnimation["ryugolpesSuperiores"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_golpesSuperiores.png",  numberOfFrame: 7, delta: 290, rate: 120, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});
@@ -153,6 +190,7 @@
                 playerAnimation["ryuwin"] = new $.gameQuery.Animation({imageURL: imagePath+"ryu_win.png",  numberOfFrame: 7, delta: 290, rate: 90, 
                 type: $.gameQuery.ANIMATION_HORIZONTAL | $.gameQuery.ANIMATION_MULTI, distance:200});     
  
+                playerAnimation["ryufailed"] = new $.gameQuery.Animation({imageURL: aboboPath + "ryufailed.png",  rate: 900, type:  $.gameQuery.ANIMATION_CALLBACK});
 
                 // adding playground sprite image
                 playGroundAnimation["foreground"]  = new $.gameQuery.Animation({imageURL: palyGroundPath + "foreground.png", type: $.gameQuery.ANIMATION_VERTICAL});
@@ -189,12 +227,63 @@
                 .addSprite("aboboRightPunch",{animation: aboboAnimation["aboboRightPunch"],
                 posx: aboboXPos, posy: 0, width: 131, height: 170, callback: aboboAttackAnimation})
                 .addSprite("aboboFallBack", {animation: aboboAnimation["aboboFallBack"],
-                 posx: aboboFallXPos, posy: 0, width: 91, height: 125, callback: aboboFallAnimation})    
-                 .addSprite("aboboHit", {animation: aboboAnimation["aboboHit"],
-                 posx: aboboXPos, posy: 0, width: 108, height: 113, callback: aboboFallAnimation})    
+                posx: aboboXPos, posy: 40, width: 91, height: 125, callback: aboboAttackAnimation})
+			   .addSprite("aboboWalkForward", {animation: aboboAnimation["aboboFallBack"],
+                posx: aboboXPos, posy: 40, width: 91, height: 125, callback: aboboAttackAnimation})
+                .addSprite("aboboHit", {animation: aboboAnimation["aboboHit"],
+                posx: aboboXPos, posy: 40, width: 108, height: 113, callback: aboboAttackAnimation})
+                .addSprite("aboboKick", {animation: aboboAnimation["aboboKick"],
+                posx: aboboXPos, posy: 40, width: 137, height: 130, callback: aboboAttackAnimation})
+		        .addSprite("aboboIdle", {animation: aboboAnimation["aboboIdle"],
+                 posx: aboboXPos, posy: 40, width: 100, height: 121, callback: aboboAttackAnimation})
+				.addSprite("aboboBlock", {animation: aboboAnimation["aboboBlock"],
+                 posx: aboboXPos, posy: 40, width: 81, height: 130, callback: aboboAttackAnimation})
+                 .addSprite("aboboWin", {animation: aboboAnimation["aboboWin"],
+                 posx: aboboXPos, posy: 0, width: 168, height: 198, callback: aboboAttackAnimation})
+ 				 .addSprite("0A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 10, width: 168, height: 198})
+                 .addSprite("1A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 30, width: 168, height: 198})
+                .addSprite("2A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 50, width: 168, height: 198})
+				 .addSprite("3A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 70, width: 168, height: 198})
+				 .addSprite("4A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 90, width: 168, height: 198})
+				 .addSprite("5A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 110, width: 168, height: 198})
+				 .addSprite("6A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 130, width: 168, height: 198})
+                 .addSprite("7A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 150, width: 168, height: 198})
+                 .addSprite("8A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 170, width: 168, height: 198})
+				 .addSprite("9A", {animation: aboboLife["life"], 
+				 posx: (aboboXPos+170), posy: 190, width: 168, height: 198})
 
-                .addSprite("ryuWalkAgo",{animation: playerAnimation["ryuWalkAgo"],
-                posx: xPos, posy: 0, width: 290, height: 160})
+                 .addSprite("0P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 10, width: 168, height: 198})
+                 .addSprite("1P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 30, width: 168, height: 198})
+				 .addSprite("2P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 50, width: 168, height: 198})
+				 .addSprite("3P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 70, width: 168, height: 198})
+				 .addSprite("4P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 90, width: 168, height: 198})
+			 	 .addSprite("5P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 110, width: 168, height: 198})
+				 .addSprite("6P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 130, width: 168, height: 198})
+ 				 .addSprite("7P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 150, width: 168, height: 198})
+ 				 .addSprite("8P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 170, width: 168, height: 198})
+ 				 .addSprite("9P", {animation: playerLife["life"], 
+				 posx: (xPos-1), posy: 190, width: 168, height: 198})
+
+                 .addSprite("ryuWalkAgo",{animation: playerAnimation["ryuWalkAgo"],
+                 posx: xPos, posy: 0, width: 290, height: 160})
 //                .addSprite("ryuBeatLeft",{animation: playerAnimation["ryuBeatLeft"], 
 //                 posx: -190, posy: 0, width: 254, height: 160})
  //               .addSprite("ryuApanhando1",{animation: playerAnimation["ryuApanhando1"], 
@@ -229,7 +318,7 @@
                   .addSprite("ryugolpesDeKarate",{animation: playerAnimation["ryugolpesDeKarate"], 
                    posx: 90, posy: 0, width: 254, height: 160})
                   .addSprite("ryugolpesRasteiros",{animation: playerAnimation["ryugolpesRasteiros"], 
-                   posx: 90, posy: 0, width: 254, height: 160})
+                   posx: 90, posy: 0, width: 254, height: 160,  callback: animate})
                   .addSprite("ryuhaduken",{animation: playerAnimation["ryuhaduken"], 
                    posx: 90, posy: 0, width: 254, height: 160})
                   .addSprite("ryuhelicoptero",{animation: playerAnimation["ryuhelicoptero"], 
@@ -255,10 +344,18 @@
                   .addSprite("ryusubindo",{animation: playerAnimation["ryusubindo"], 
                    posx: 90, posy: 0, width: 254, height: 160})
                   .addSprite("ryuwin",{animation: playerAnimation["ryuwin"], 
-                   posx: 90, posy: 0, width: 254, height: 160});
+                   posx: 90, posy: 0, width: 254, height: 160})
+                   .addSprite("ryufailed",{animation: playerAnimation["ryufailed"], 
+                   posx: 90, posy: 0, width: 254, height: 160});  
 
-	          $("#aboboFallBack").hide();
+                $("#aboboRightPunch").hide();
+                $("#aboboWalkForward").hide();
+	            $("#aboboFallBack").hide();
                 $("#aboboHit").hide(); 
+				$("#aboboKick").hide();
+				$("#aboboBlock").hide();
+                $("#aboboWin").hide();
+
                 $("#ryuBeatLeft").hide();  
                 $("#ryuApanhando1").hide();
                 $("#ryuApanhando2").hide();  
@@ -284,177 +381,158 @@
                 $("#ryusocos2").hide();
                 $("#ryusubindo").hide();
                 $("#ryuwin").hide();  
+				$("#ryufailed").hide();
  
                 defaultAnimation =  $("#ryuWalkAgo");  // this is the default position
-                aboboDefaultAnimation = $("#aboboRightPunch");
+                
+				aboboDefaultAnimation = $("#aboboIdle");
+				aboboDefaultAnimation.show(); 
 
-                $("#aboboRightPunch").show(); 
-                $("#aboboRightPunch").setAnimation(0, aboboAttackAnimation()); 
+                startPlayerTimer();
 
                 $.playground().registerCallback(function() {
-                      
-                     // $("#aboboFallBack").setAnimation( 14 );
-                      var collided = $("#ryuWalkAgo").collision("#aboboRightPunch,.group");
+                      //var collided = $("#ryuWalkAgo").collision("#aboboRightPunch,.group");
                       //var collided = $("#ryuWalkAgo").collision("#aboboRightPunch,.group");  
                       //var collided = $("#ryuWalkAgo").collision(".group,#aboboRightPunch");
-                       //moveRight();
-                      //if( collided.length > 0 ) {
-                      //    if( !kdown ) {
-                      //      defaultAnimation.hide();
-                      //      currentAnimation = $("#ryuApanhando5"); 
-                      //      currentAnimation.css("left", "" + xPos + "px"); 
-                      //      currentAnimation.show();  
-                      //      currentAnimation.setAnimation(0);
-                       //   } 
-                      //}
-                        
-                          if( detectCollision() ) {
-                             setCollided();   
-                             log(" user Attack count " + userAttackCount);
-                                if( userAttackCount > aboboAttackCount ) { // there is a definite adv on the user side.
-                                     //displayAnimationWithDelay($("#aboboFallBack"));
-                                     for(var i = 0; i<15; i++) {  
-                                      //delay( 1000 );
-                                       displayAnimationWithDelay($("#aboboFallBack"));
-                                        moveAboboRight($("#aboboFallBack"));   
-                                     } 
-                                }
-                        } else {
-                             log(" else block ....user Attack count " + userAttackCount);
-                          }   
+                      if(detectCollision()) {
+                             setCollided();
+                                if( userAttackCount > aboboAttackCount ) { 
+                                     userAttackCount = 0;
+									 aboboAttackCount = 0; 
+									 var sprite = aboboDefaultAnimation;
+									 sprite.hide();
+									 aboboDefaultAnimation = $("#aboboHit");
+							 	     aboboDefaultAnimation.css("left", "" + aboboXPos + "px");
+									 aboboDefaultAnimation.show();
+								     alert("player won......");
+									 log(" player won.....");
+							    }else if( userAttackCount <= 0 ) {
+			                		 userAttackCount = 0;
+								}
+                        }
                 }, 30);
 
                 function animate() {
-                   log( "\r\n inside animate method.... " );
-                   if( distanceBetweenSprite() < DISTANCE )
-                     return false;
- 
-			 if( aboboAttackCount< 50 ) 
-                     aboboAttackCount++;
-                   log( "\r\n abobo attack count.... " + aboboAttackCount );
-	          }
- 
-                function waitAnimation(){
-                     //kdown = false;
-                     
-                }
-                // This is the callback method for abobo animation.
-                // This callback method animation is depending upon the 
-                // frame rate specified while defining the animation        
+				     if(currMove == 'BLOCK'){
+                        userAttackCount--;
+				    }
+	            log("userAttackCount..."+userAttackCount);
+              }
+
+		      function gameOverAnimation(){
+			   if( gameOver ) return false;
+			     setTimeout(function(){
+                 defaultAnimation.remove();
+				 defaultAnimation = $("#ryufailed");
+				 defaultAnimation.css("left", ""+(xPos + 60)+"px");
+				 defaultAnimation.css("top", "" + 120 + "px");
+				 defaultAnimation.show();
+			    }, 2000);
+			  }
+
+				var first = true;
                 function aboboAttackAnimation() {
-                     //if( aboboAttackCount< 50 ) 
-                     //aboboAttackCount++;
-                     //log( "\r\n abobo attack count.... " + aboboAttackCount );
-                     //animate();
+				  if( gameOver ) return false;
+				  var sprite = null; 
+				   if( isCollided ){	   
+				    if( first ) {
+					    currMove = 'PUNCH';
+						first    = false;
+						clearTimeout( aboboTimer );
+					 }
+				      if( currMove == 'PUNCH'){
+				      aboboDefaultAnimation.hide();
+				      aboboDefaultAnimation = $("#aboboRightPunch");
+                      aboboDefaultAnimation.show();
+					  aboboDefaultAnimation.css("left", "" + aboboXPos + "px");
+					  aboboAttackCount = aboboAttackCount + deltaCount;
+			       }
+				   if(currMove == 'KICK'){
+				        aboboDefaultAnimation.hide();
+                        aboboDefaultAnimation = $("#aboboKick");
+						aboboDefaultAnimation.show();
+						aboboDefaultAnimation.css("left", "" + aboboXPos + "px");
+						aboboAttackCount = aboboAttackCount + deltaCount;
+                   }
+                   if(currMove == 'IDLE'){
+     			   } 
+				  if(currMove == 'BLOCK'){
+				        if( kdown ){
+				        aboboDefaultAnimation.hide();
+                aboboDefaultAnimation = $("#aboboBlock");
+						aboboDefaultAnimation.show();
+						aboboDefaultAnimation.css("left", "" + aboboXPos + "px");
+						}
+                  }
+                  aboboTimer = setTimeout(function(){
+					 currMove = getMoves(moves);
+					}, 3000);
+                  }
+				  else {
+				        first = true;
+					    var sprite = aboboDefaultAnimation;
+						sprite.hide();
+                        aboboDefaultAnimation = $("#aboboWalkForward");
+						aboboDefaultAnimation.show();
+						if( aboboXPos < 300) {
+						   FRONT = false; 
+		                }
+						else if( aboboXPos >= 500 ) {
+                          FRONT = true;   
+                        }
+                        if( FRONT )  aboboXPos = aboboXPos - 5;
+						else aboboXPos = aboboXPos + 5;
+						aboboDefaultAnimation.css("left", "" + aboboXPos + "px");     
+				  }
                 }
                 
                 function distanceBetweenSprite(a, b) {
                   return Math.abs(a.position().left - b.position().left());    
                 }
- 
-                function aboboFallAnimation() {
-                }
- 
-                function updateAboboHealthBar() {
-                        if( aboboHealthCount < ABOBOMINHEALTH ) {
-                           // abobo finishes 
-                             aboboDownAnimation();
-                        }
-                        aboboHealthCount--;
-                }
+  
+                function startPlayerTimer() {
+                   setInterval(function(){
+                      updatePlayerTimer();
+				   }, 5000);
+				}
 
-                function playerAnimation() {
-
-                }
-
-    
-                function aboboDownAnimation() {
-                  gameOver();          
-                }
-
-                // this method updates the screen 
-                // with suitable animation sequences
-                function gameOver() {
-                }
+				function updatePlayerTimer() {
+				  if(isCollided){
+                  if( aboboAttackCount > userAttackCount ) {
+                      $("#" + playerLifeCounter + "P").hide();
+					   if(playerLifeCounter >= 9){
+					     whoWon();
+                         return false;
+					  }
+                      playerLifeCounter++;
+				  }
+                 } 
+				}
 
                 $( document ).keydown( function(e) {
    		           switch( e.keyCode ) {
                        case 80: // 'p' key pressed, it is a 'punch' move
-                              if( !kdown ) { 
-                                    defaultAnimation.hide(); 
-                                    currentAnimation = $("#ryugolpesRasteiros"); 
-                                    currentAnimation.css("left", "" + xPos + "px");     
-                                    currentAnimation.show(); 
-                               //     kdown = true;
-					//	anyKeyPressed = true;
-                                    registerUserAttackCount();
-                                    currentAnimation.setAnimation( 0, waitAnimation()); 
-                                }   
+					          changePlayerAnimation($("#ryugolpesRasteiros"), 0);
                               break; 
 
                         case 65: // A key pressed
-                               if( !kdown ) {
-                               defaultAnimation.hide();
-                               currentAnimation = $("#ryugolpesRasteiros"); 
-                               currentAnimation.css("left", "" + xPos + "px");
-                               currentAnimation.show();
-                             //  kdown = true; 
-					// anyKeyPressed = true;
-                                registerUserAttackCount(); 
-                                currentAnimation.setAnimation( 4, waitAnimation()); 
-                               }
+						       changePlayerAnimation($("#ryugolpesRasteiros"), 4);
                                break;   
                      
                         case 83: // S key pressed
-                              if( !kdown ) { 
-                                    defaultAnimation.hide(); 
-                                    currentAnimation = $("#ryugolpesRasteiros"); 
-                                    currentAnimation.css("left", "" + xPos + "px");     
-                                    currentAnimation.show(); 
-                                  //  kdown = true;
-                                   // anyKeyPressed = true;
-                                    registerUserAttackCount();   
-                                    currentAnimation.setAnimation( 1, waitAnimation()); 
-                              }   
+				              changePlayerAnimation($("#ryugolpesRasteiros"), 1);
                               break;   
 
                         case 68: // D key pressed
-                             if( !kdown ) { 
-                                    defaultAnimation.hide(); 
-                                    currentAnimation = $("#ryugolpesRasteiros"); 
-                                    currentAnimation.css("left", "" + xPos + "px");     
-                                    currentAnimation.show(); 
-                                  //  kdown = true;
-                                   // anyKeyPressed = true;
-                                    registerUserAttackCount();    
-                                    currentAnimation.setAnimation( 2, waitAnimation()); 
-                              }   
-                               break;
+						      changePlayerAnimation($("#ryugolpesRasteiros"), 2);
+                              break;
 
                        case 70: // F key pressed
-                               if( !kdown ) { 
-                                    defaultAnimation.hide(); 
-                                    currentAnimation = $("#ryugolpesRasteiros"); 
-                                    currentAnimation.css("left", "" + xPos + "px");     
-                                    currentAnimation.show(); 
-                                //    kdown = true;
-                                   // anyKeyPressed = true;
-                                    registerUserAttackCount();      
-                                    currentAnimation.setAnimation( 3, waitAnimation()); 
-                                }   
+					           changePlayerAnimation($("#ryugolpesRasteiros"), 3);
                                break;
 
                        case 71: // G key pressed
-                             if( !kdown ) { 
-                                    defaultAnimation.hide(); 
-                                    currentAnimation = $("#ryuBeatLeft"); 
-                                    currentAnimation.css("left", "" + xPos + "px");     
-                                    currentAnimation.show(); 
-                              //      kdown = true;
-                                   // anyKeyPressed = true;
-                                    registerUserAttackCount();    
-                                    currentAnimation.setAnimation( 0, waitAnimation()); 
-                              }   
+					           changePlayerAnimation($("#ryuBeatLeft"), 0); 
                                break;
                        
                        case 72: // H key pressed
@@ -469,22 +547,15 @@
                        case 67: // 'C' key pressed
                             break; 
 
-
                         case 39: // right arrow key pressed
-                            // kdown = true;
-                            // anyKeyPressed = true; 
                              moveRight();  
                              break;
                           
                         case 37:
-                            // kdown = true;
-                            // anyKeyPressed = true;  
                              moveLeft();  
                              break;
-
                         } 										
                 });
-
 
                 $(document).keyup(function(e) {
                   switch(e.keyCode){
@@ -520,22 +591,55 @@
                   case 39:
                          kdown = false;
                          break;
-       
-                  }       
+                         }       
                 }); 
  
-                
-                 function stopCurrentAnimation() {
+           function changePlayerAnimation( animationName, animNumber ){
+ 				   registerUserKeyPressed(); 
+				    defaultAnimation.hide(); 
+            currentAnimation = animationName; 
+            currentAnimation.css("left", "" + xPos + "px");     
+            currentAnimation.show(); 
+            currentAnimation.setAnimation( animNumber, waitAnimation()); 
+				    registerUserAttackCount();
+				}
+ 
+                function waitAnimation(){
+                }
+
+                function stopCurrentAnimation() {
                       kdown = false;
                       var sprite = currentAnimation;  
                       stopAnimation( sprite ); 
-                 } 
+                } 
    
-                // This method controls in displaying
-                // the default animation.If there is no
-                // delay set, animations due to key pressed
-                // will not be displayed smoothly. 
-                function stopAnimation( sprite ) {
+                 function registerUserKeyPressed(){
+				  if( isCollided ) kdown = true;
+				      else kdown = false;
+				 }
+
+                 function whoWon(){
+				    document.getElementById("log1").innerHTML = " abobo won .......";
+                    aboboDefaultAnimation.hide();
+                    aboboDefaultAnimation = $("#aboboWin");
+					aboboDefaultAnimation.css("left", "" + aboboXPos + "px");
+                    aboboDefaultAnimation.show();
+			        isCollided = false;
+					defaultAnimation.hide();
+					defaultAnimation = $("#ryuRollForward");
+					defaultAnimation.css("left", "" + xPos + "px");
+					defaultAnimation.css("top", "" + 70 + "px");
+                    defaultAnimation.show();
+					defaultAnimation.setAnimation(3, gameOverAnimation());
+                    aboboAttackCount = 0; 
+					gameOver = true;
+				 }
+                 
+				 //This method is used to chase the player when a fight begins 
+                 function chasePlayer(){
+				 }
+
+                function stopAnimation( sprite ){
                    if( !kdown ) {
                    res = window.setTimeout(function() {
                         sprite.hide();
@@ -545,31 +649,15 @@
                   }     
                 }
 
-                function displayAnimationWithDelay( sprite ) {
-                   var res = null;
-                   res = window.setTimeout(function() {
-                         aboboDefaultAnimation.hide();    
-                         sprite.show();
-                         clearTimeout( res ); 
-                   }, 800);    
-                }
-   
-                function delay( timer ) {
-                   var res = null;
-                   res = window.setTimeout(function() {
-                   clearTimeout( res );
-                  }, 200);     
-                }
-  
-                 function moveRight() {
-                   xPos = xPos + 75;  
-                  // defaultAnimation.addSprite("ryuWalkAgo", {animation: playerAnimation["ryuWalkAgo"], posx: xPos, posy: 0, width: 290, height: 160});
-                    defaultAnimation.css("left", "" + xPos + "px");
+                function moveRight() {
+                   xPos = xPos + xdelta;  
+                   defaultAnimation.css("left", "" + xPos + "px");
                 }
 
                 function moveLeft() {
-                   xPos = xPos - 10;  
-                   defaultAnimation.css("left", "" + xPos + "px");
+                   xPos = xPos - 15;  
+				   if( xPos <= 0 ) xPos = 0;
+				   defaultAnimation.css("left", "" + xPos + "px");
                    if( !detectCollision() ) {
                       userAttackCount = 0;
                       isCollided = false;  
@@ -600,21 +688,25 @@
                    if( isCollided ) userAttackCount++;
                    else userAttackCount = 0;                      
                 } 
-   
-                // logs all the messages 
+
+                function getMoves(moves){
+                  return moves[Math.round(Math.random()*(moves.length - 1))];
+				}
+
                 function log( msg ) {
+                   document.getElementById("log").innerHTML = "";
                    document.getElementById("log").innerHTML = msg;  
                 }   
-
+                 $().setLoadBar("loadingBar", 600);
                  $.playground().startGame();
               });
         </script>
     </head>
     <body>
         <h2 id="message"></h2>
-        <div id = "log">value:</div> 
+        <div id = "log">value:</div>
+		<div id = "log1">value1:</div> 
         <div id ="playground" style="width: 350px; height: 50px; background: white"></div>
-        
     </body>
 </html>
 
